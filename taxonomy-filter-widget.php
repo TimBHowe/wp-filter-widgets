@@ -1,34 +1,63 @@
 <?php
-/*
-Plugin Name: Taxonomy Filter Widgets
-Plugin URI: http://www.hallme.com/
-Description: Create a custom drop-down filter based on taxonomies
-Version: 1.0
-Author: Hall Internet Marketing
-Author URI: http://www.hallme.com/
-Author Email: cms.support@hallme.com
-*/
-
+/* *
+ * Taxonomy Filter
+ * This widget allows you to select a taxonomy to filter the main query.
+ * */
 class main_query_taxonomy_filter_widget extends WP_Widget {
 
 	function __construct() {
 
-		add_action( 'pre_get_posts', array( $this, 'foo_modify_query_exclude_category' ) ); //TODO: need to update to work in the class
-
-        // Register site styles and scripts
-        add_action( 'wp_enqueue_scripts', array( $this, 'register_plugin_scripts' ) );
-
+		// Alter the main query based on a taxonomy value passed
+		add_action( 'pre_get_posts', array( $this, 'filter_query_by_taxonomy_value' ) );
 
 		parent::__construct(
 			// Base ID of your widget
-			'taxonomy_filter_widget',
+			'taxonomy-filter-widget',
 
 			// Widget name will appear in UI
-			__('Taxonomy Filter Widget', 'taxonomy_widget_domain'),
+			__('Taxonomy Filter Widget', 'wp_filter_widgets'),
 
 			// Widget description
-			array( 'description' => __( 'Filters Post by Taxonomies', 'taxonomy_widget_domain' ), )
+			array( 'description' => __( 'Filters Post by Taxonomies', 'wp_filter_widgets' ), )
 		);
+	}
+
+	// Widget Backend
+	public function form( $instance ) {
+		if ( isset( $instance['title'] ) ) {
+			$title = $instance['title'];
+		} else {
+			$title = __( 'Taxonomy Filter', 'wp_filter_widgets' );
+		}
+
+		$taxonomy = $instance['taxonomy'];
+
+		// Widget admin form
+		?>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'taxonomy' ); ?>"><?php _e( 'Taxonomy:' ); ?></label>
+			<select class="widefat" for="<?php echo $this->get_field_id( 'taxonomy' ); ?>" name="<?php echo esc_attr( $this->get_field_name('taxonomy') ); ?>"><?php _e( 'Taxonomy:' ); ?>
+				<?php
+				$taxonomies = get_taxonomies ( array( 'public' => true), 'objects' );
+				foreach ( $taxonomies as $key => $tax_obj ) {
+					echo '<option ' . ( $instance['taxonomy'] == $key ? 'selected' : '' ) . ' value="' . $key . '">' . $tax_obj->labels->name . '</option>';
+				}
+				?>
+			</select>
+		</p>
+	<?php
+	}
+
+	// Updating widget replacing old instances with new
+	public function update( $new_instance, $old_instance ) {
+		$instance = array();
+		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['taxonomy'] = ( ! empty( $new_instance['taxonomy'] ) ) ? strip_tags( $new_instance['taxonomy'] ) : '';
+		return $instance;
 	}
 
 	// Creating widget front-end
@@ -89,45 +118,8 @@ class main_query_taxonomy_filter_widget extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
-	// Widget Backend
-	public function form( $instance ) {
-		if ( isset( $instance['title'] ) ) {
-			$title = $instance['title'];
-			$taxonomy = $instance['taxonomy'];
-		} else {
-			$title = __( 'Taxonomy Filter', 'taxonomy_widget_domain' );
-		}
-
-		// Widget admin form
-		?>
-		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id( 'taxonomy' ); ?>"><?php _e( 'Taxonomy:' ); ?></label>
-			<select class="widefat" for="<?php echo $this->get_field_id( 'taxonomy' ); ?>" name="<?php echo esc_attr( $this->get_field_name('taxonomy') ); ?>"><?php _e( 'Taxonomy:' ); ?>
-				<?php
-				$taxonomies = get_taxonomies ( array( 'public' => true), 'objects' );
-				foreach ( $taxonomies as $key => $tax_obj ) {
-					echo '<option ' . ( $instance['taxonomy'] == $key ? 'selected' : '' ) . ' value="' . $key . '">' . $tax_obj->labels->name . '</option>';
-				}
-				?>
-			</select>
-		</p>
-	<?php
-	}
-
-	// Updating widget replacing old instances with new
-	public function update( $new_instance, $old_instance ) {
-		$instance = array();
-		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-		$instance['taxonomy'] = ( ! empty( $new_instance['taxonomy'] ) ) ? strip_tags( $new_instance['taxonomy'] ) : '';
-		return $instance;
-	}
-
 	// Alter the main query with the taxonomy filter from the widget
-	function foo_modify_query_exclude_category( $query ) {
+	function filter_query_by_taxonomy_value( $query ) {
 
 		// Get the current query strings
 		$get_string = $_SERVER['QUERY_STRING'];
@@ -173,20 +165,20 @@ class main_query_taxonomy_filter_widget extends WP_Widget {
 		);
 
 		// Alter the main query with new taxonomy args
-		//if ( $query->is_main_query() ) {
+		if ( $query->is_main_query() ) {
 
 			$query->set( 'tax_query', $tax_args );
 
 			// FOR TESTING
 			//$query_vars = $query->query_vars;
 			//var_dump( $query_vars );
-		//}
+		}
 	}
 
 } // Class main_query_taxonomy_filter_widget ends here
 
-// Register and load the widget
-function wpb_load_widget() {
+// Register and load the taxonomy filter widget
+function taxonomy_filter_widget() {
 	register_widget( 'main_query_taxonomy_filter_widget' );
 }
-add_action( 'widgets_init', 'wpb_load_widget' );
+add_action( 'widgets_init', 'taxonomy_filter_widget' );
