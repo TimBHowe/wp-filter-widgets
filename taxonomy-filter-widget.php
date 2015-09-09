@@ -40,7 +40,7 @@ class main_query_taxonomy_filter_widget extends WP_Widget {
 		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'taxonomy' ); ?>"><?php _e( 'Taxonomy:' ); ?></label>
-			<select class="widefat" for="<?php echo $this->get_field_id( 'taxonomy' ); ?>" name="<?php echo esc_attr( $this->get_field_name('taxonomy') ); ?>"><?php _e( 'Taxonomy:' ); ?>
+			<select class="widefat" for="<?php echo $this->get_field_id( 'taxonomy' ); ?>" name="<?php echo esc_attr( $this->get_field_name('taxonomy') ); ?>">
 				<?php
 				$taxonomies = get_taxonomies ( array( 'public' => true), 'objects' );
 				foreach ( $taxonomies as $key => $tax_obj ) {
@@ -94,7 +94,7 @@ class main_query_taxonomy_filter_widget extends WP_Widget {
 		) );
 
 		// Print the taxonomy items
-		echo '<form id="taxonomy-filter-widget" method="get" action="//' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'] . '">';
+		echo '<form id="' . $arg['widget_id'] . '-form" method="get" action="//' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'] . '">';
 
 			echo '<select name="' . $taxonomy . '" onchange="this.form.submit()">';
 
