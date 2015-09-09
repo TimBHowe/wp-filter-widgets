@@ -54,12 +54,21 @@ class main_query_acf_filter_widget extends WP_Widget {
 				foreach( $acf_fields as $acf_field ) {
 
 					// Set the selected field
-					if(  $instance['acf-field'] == $acf_field['key'] ) { $selected = ' selected '; } else { $selected = ''; }
+					if( $instance['acf-field'] == $acf_field['key'] ) {
+						$selected = ' selected';
+					} else {
+						$selected = '';
+					}
 
 					// Disable complex fields
-					if( !in_array( $acf_field['type'], array( 'text', 'checkbox' ) ) ) { $disabled = ' disabled '; } else { $disabled = ''; }
+					$allowed_field_types  = array( 'text', 'number', 'select', 'radio', 'checkbox', 'true_false' );
+					if( ! in_array( $acf_field['type'], $allowed_field_types ) ) {
+						$disabled = ' disabled';
+					} else {
+						$disabled = '';
+					}
 
-					echo '<option ' . $selected . $disabled . ' value="' . $acf_field['key'] . '" data-field-type="' . $acf_field['type'] . '">' . $acf_field['label'] . '</option>'."\n";
+					echo '<option' . $selected . $disabled . ' value="' . $acf_field['key'] . '" data-field-type="' . $acf_field['type'] . '">' . $acf_field['label'] . '</option>'."\n";
 				}
 
 				echo '</optgroup>';

@@ -14,6 +14,8 @@
 
 require_once( 'taxonomy-filter-widget.php' );
 
+//require_once( 'postmeta-filter-widget.php' );
+
 if( class_exists( 'acf' ) ) {
-	//require_once( 'acf-filter-widget.php' );
+	require_once( 'acf-filter-widget.php' );
 }
