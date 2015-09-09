@@ -76,32 +76,9 @@ class main_query_acf_filter_widget extends WP_Widget {
 			?>
 			</select>
 		</p>
-			<legend>Input Type:</legend>
-			<input type="radio" id="<?php echo $this->get_field_id( 'rating' ); ?>" name="<?php echo $this->get_field_name( 'rating' ); ?>" value=""><label for="<?php echo $this->get_field_id( 'rating' ); ?>"></label>
-		<p>
-		</p>
-
-        <script type="text/javascript">
-            var fieldname = <?php echo json_encode( $this->get_field_name('stream_sources') ) ?>;
-            var fieldnum = <?php echo json_encode( $stream_counter-1 ) ?>;
-
-            jQuery(function($) {
-				$('.<?php echo $this->get_field_id( 'add_field' );?>').click(function() {
-
-                var count = fieldnum;
-                $('.<?php echo $this->get_field_id( 'add_field' );?>').click(function() {
-                    $("#<?php echo $this->get_field_id( 'field_clone' );?>").append("<p><input type='text' name='"+fieldname+"["+(count+1)+"][title] value='' class='widefat sourc"+(count+1)+"'><span class='remove-field button button-primary button-large'>Hapus</span></p>");
-                    count++;
-                });
-
-                $(".remove-field").live('click', function() {
-                    $(this).parent().remove();
-                });
-            });
-        </script>
-
 	<?php
-        //echo '<input class="button '.$this->get_field_id('add_field').' button-primary button-large" type="button" value="' . __( 'Tambah Audio', 'myvps' ) . '" id="add_field" />';
+
+		//TOOD: Allow users to set the input type for the filter
 
 	}
 
@@ -115,11 +92,6 @@ class main_query_acf_filter_widget extends WP_Widget {
 		// ACF Field - Select
 		if( $new_instance['acf-field'] != $old_instance['acf-field'] ) {
 			$instance['acf-field'] = $new_instance['acf-field'];
-		}
-
-		// Option Type - Radio Button
-		if( $new_instance['option-type'] != $old_instance['option-type'] ) {
-			$instance['option-type'] = $new_instance['option-type'];
 		}
 
 		return $instance;
@@ -137,8 +109,11 @@ class main_query_acf_filter_widget extends WP_Widget {
 		if ( ! empty( $title ) )
 			echo $args['before_title'] . $title . $args['after_title'];
 
-		// Print the taxonomy items
-		echo '<form id="taxonomy-filter-widget" method="get" action="//' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'] . '">';
+		// Get the ACF set in the widget options
+		$acf_field = $instance['acf-field'];
+
+		// Print the select form TODO:
+		echo '<form id="' . $arg['widget_id'] . '-form" method="get" action="//' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'] . '">';
 
 			echo '<select name="' . $taxonomy . '" onchange="this.form.submit()">';
 
